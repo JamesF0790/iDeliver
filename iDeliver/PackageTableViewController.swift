@@ -1,10 +1,3 @@
-//
-//  PackageTableViewController.swift
-//  iDeliver
-//
-//  Created by James Frost on 7/5/18.
-//  Copyright © 2018 James Frost. All rights reserved.
-//
 
 import UIKit
 
@@ -25,11 +18,7 @@ class PackageTableViewController: UITableViewController {
             packages.append(enroutePackages)
             packages.append(deliveredPackages)
         }
-        loadSamplePackages()
-        
-
-        
-        
+        //loadSamplePackages()
     }
 
     // MARK : - Unwind
@@ -66,6 +55,7 @@ class PackageTableViewController: UITableViewController {
                 tableView.reloadData()
             }
         }
+        Package.savePackages(packages)
     }
 
     // MARK: - Table view data source
@@ -99,8 +89,6 @@ class PackageTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "packageCell", for: indexPath) as! PackageCell
 
-        // Configure the cell...
-        
         cell.nameLabel?.text = packages[indexPath.section][indexPath.row].recipientName
         cell.addressLabel?.text = packages[indexPath.section][indexPath.row].recipientAddress
         print(indexPath)
@@ -157,7 +145,7 @@ class PackageTableViewController: UITableViewController {
  
 
 }
-private extension PackageTableViewController {
+/* private extension PackageTableViewController {
     func loadSamplePackages() {
         
         enteredPackages.append(Package(status: 0, statusDate: Date(), statusTime: Date(), courier: "Bob", trackingNumber: "12312", recipientName: "Joe Blogs", recipientAddress: "123 Fake Street New York, 12412, NY", recipientEmail: "JoeBlogs@blogsy.com", recipientPhoneNumber: "555-3931", deliveryDate: Date(), deliveryTime: Date(), notes: "Blogsy"))
@@ -165,3 +153,4 @@ private extension PackageTableViewController {
         deliveredPackages.append(Package(status: 2, statusDate: Date(), statusTime: Date(), courier: "Bob", trackingNumber: "123123", recipientName: "John Smith", recipientAddress: "432 False Court, Texarkana, 12131, TX", recipientEmail: "JSmith@smith.com", recipientPhoneNumber: "555-3121", deliveryDate: Date(), deliveryTime: Date(), notes: "Generic"))
     }
 }
+*/
