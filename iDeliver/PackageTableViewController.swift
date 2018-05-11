@@ -3,7 +3,7 @@ import UIKit
 
 class PackageTableViewController: UITableViewController {
 
-    var enteredPackages: [Package] = []
+    var enteredPackages: [Package] = [] // The first four arrays are only used to set up the fifth array's contents
     var enroutePackages: [Package] = []
     var deliveredPackages: [Package] = []
     var returnedPackages: [Package] = []
@@ -15,7 +15,7 @@ class PackageTableViewController: UITableViewController {
         if let savedPackages = Package.loadPackages() {
             packages = savedPackages
         } else {
-            loadSamplePackages()
+            loadSamplePackages() // I had to load a sample into each one or 
             packages.append(enteredPackages)
             packages.append(enroutePackages)
             packages.append(deliveredPackages)
@@ -71,19 +71,18 @@ class PackageTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerCell = tableView.dequeueReusableCell(withIdentifier: "HeaderCell") as! HeaderCell
         
-        headerCell.backgroundColor = .cyan
+        headerCell.headerLabel.textColor = .black
         
         switch (section) {
         case 0:
             headerCell.headerLabel.text = "Entered"
-            headerCell.headerLabel.textColor = .black
+            headerCell.backgroundColor = .cyan
         case 1:
             headerCell.headerLabel.text = "En-Route"
-            headerCell.headerLabel.textColor = .black
+            headerCell.backgroundColor = .yellow
         case 2:
             headerCell.headerLabel.text = "Delivered"
             headerCell.backgroundColor = .green
-            headerCell.headerLabel.textColor = .black
         case 3:
             headerCell.headerLabel.text = "Returned"
             headerCell.backgroundColor = .red

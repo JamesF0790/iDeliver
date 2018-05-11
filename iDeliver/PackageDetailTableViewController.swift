@@ -71,11 +71,13 @@ class PackageDetailTableViewController: UITableViewController {
     @IBAction func deliveryDatePickerChanged(_ sender: UIDatePicker) {
         deliveryDate = sender.date
         updateDateLabel(label: deliveryDateLabel, date: sender.date)
+        updateSaveButtonState()
     }
     
     @IBAction func deliveryTimePickerChanged(_ sender: UIDatePicker) {
         deliveryTime = sender.date
         updateTimeLabel(label: deliveryTimeLabel, time: sender.date)
+        updateSaveButtonState()
     }
     
     @IBAction func deleteButtonTapped(_ sender: UIButton) {
@@ -100,6 +102,8 @@ class PackageDetailTableViewController: UITableViewController {
     }
     @IBAction func segmentedControlChanged(_ sender: UISegmentedControl) {
         updateSaveButtonState()
+        tableView.beginUpdates()
+        tableView.endUpdates()
     }
     
     // MARK: - Table view data source
@@ -152,8 +156,23 @@ class PackageDetailTableViewController: UITableViewController {
             return isStatusDatePickerShown ? pickerHeight : hiddenHeight
         case [0,4]:
             return isStatusTimePickerShown ? pickerHeight : hiddenHeight
+        case [3,0]:
+            if (statusSegmentedControl.selectedSegmentIndex == 2 || statusSegmentedControl.selectedSegmentIndex == 3) {
+                return normalHeight
+            } else {
+                isDeliveryDatePickerShown = false
+                return hiddenHeight
+            }
         case [3,1]:
             return isDeliveryDatePickerShown ? pickerHeight: hiddenHeight
+
+        case [3,2]:
+            if (statusSegmentedControl.selectedSegmentIndex == 2 || statusSegmentedControl.selectedSegmentIndex == 3) {
+                return normalHeight
+            } else {
+                isDeliveryTimePickerShown = false
+                return hiddenHeight
+            }
         case [3, 3]:
             return isDeliveryTimePickerShown ? pickerHeight : hiddenHeight
         case[4,0]:
@@ -266,7 +285,7 @@ private extension PackageDetailTableViewController {
             trackingNumberTextField.attributedPlaceholder = NSAttributedString(string: "Tracking Number (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
             
              saveButton.isEnabled = !nameCheck.isEmpty && !addressCheck.isEmpty && !courierCheck.isEmpty && !trackingNoCheck.isEmpty
-        case 2:
+        case 2, 3:
             let nameCheck = recipientNameTextField.text ?? ""
             let addressCheck = recipientAddressTextField.text ?? ""
             let courierCheck = courierTextField.text ?? ""

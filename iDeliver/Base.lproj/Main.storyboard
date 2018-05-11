@@ -264,6 +264,7 @@
                                                     <textInputTraits key="textInputTraits" autocapitalizationType="words" textContentType="organization"/>
                                                     <connections>
                                                         <action selector="returnPressed:" destination="e10-Xe-Vch" eventType="primaryActionTriggered" id="ps9-qq-Wzb"/>
+                                                        <action selector="textFieldChanged:" destination="e10-Xe-Vch" eventType="editingChanged" id="iwL-hi-T8x"/>
                                                     </connections>
                                                 </textField>
                                             </subviews>
@@ -289,6 +290,7 @@
                                                     <textInputTraits key="textInputTraits"/>
                                                     <connections>
                                                         <action selector="returnPressed:" destination="e10-Xe-Vch" eventType="primaryActionTriggered" id="cgn-4X-R0R"/>
+                                                        <action selector="textFieldChanged:" destination="e10-Xe-Vch" eventType="editingChanged" id="nKL-97-iTW"/>
                                                     </connections>
                                                 </textField>
                                             </subviews>
