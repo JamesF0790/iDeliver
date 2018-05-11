@@ -124,14 +124,14 @@ class PackageDetailTableViewController: UITableViewController {
             
             tableView.beginUpdates()
             tableView.endUpdates()
-        case [3,0]:
+        case [2,2]:
             isDeliveryDatePickerShown = !isDeliveryDatePickerShown
             
             deliveryDateLabel.textColor = isDeliveryDatePickerShown ? tableView.tintColor : .black
             
             tableView.beginUpdates()
             tableView.endUpdates()
-        case [3, 2]:
+        case [2, 4]:
             isDeliveryTimePickerShown = !isDeliveryTimePickerShown
             
             deliveryTimeLabel.textColor = isDeliveryTimePickerShown ? tableView.tintColor : .black
@@ -156,28 +156,28 @@ class PackageDetailTableViewController: UITableViewController {
             return isStatusDatePickerShown ? pickerHeight : hiddenHeight
         case [0,4]:
             return isStatusTimePickerShown ? pickerHeight : hiddenHeight
-        case [3,0]:
+        case [2,2]:
             if (statusSegmentedControl.selectedSegmentIndex == 2 || statusSegmentedControl.selectedSegmentIndex == 3) {
                 return normalHeight
             } else {
                 isDeliveryDatePickerShown = false
                 return hiddenHeight
             }
-        case [3,1]:
+        case [2,3]:
             return isDeliveryDatePickerShown ? pickerHeight: hiddenHeight
 
-        case [3,2]:
+        case [2,4]:
             if (statusSegmentedControl.selectedSegmentIndex == 2 || statusSegmentedControl.selectedSegmentIndex == 3) {
                 return normalHeight
             } else {
                 isDeliveryTimePickerShown = false
                 return hiddenHeight
             }
-        case [3, 3]:
+        case [2,5]:
             return isDeliveryTimePickerShown ? pickerHeight : hiddenHeight
-        case[4,0]:
+        case[3,0]:
             return notesHeight
-        case [5,0]:
+        case [4,0]:
             return isDeleteButtonShown ? normalHeight : hiddenHeight
         default:
             return normalHeight
