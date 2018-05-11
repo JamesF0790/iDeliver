@@ -18,7 +18,7 @@ class PackageDetailTableViewController: UITableViewController {
     var isDeliveryDatePickerShown = false
     var isDeliveryTimePickerShown = false
     
-    var isDeleteButtonShown = false
+    var isDeleteButtonShown = false// Since the delete button should never be used on a new package it's hidden using the loadPackage() proc only setting this to true if a parcel is loaded
 
     var deliveryDate: Date?
     var deliveryTime: Date?
@@ -52,9 +52,9 @@ class PackageDetailTableViewController: UITableViewController {
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        updateAllLabels()
-        loadPackage()
-        updateSaveButtonState()
+        updateAllLabels() // Update the status date/time Labels
+        loadPackage() // Try and load the package if it's there
+        updateSaveButtonState() // Check if the save button should be enabled
         
     }
 
@@ -69,9 +69,9 @@ class PackageDetailTableViewController: UITableViewController {
     }
     
     @IBAction func deliveryDatePickerChanged(_ sender: UIDatePicker) {
-        deliveryDate = sender.date
+        deliveryDate = sender.date // Setting this allows me to use it later to check if a date has been set.
         updateDateLabel(label: deliveryDateLabel, date: sender.date)
-        updateSaveButtonState()
+        updateSaveButtonState() // Updating this is required as I need a date when the parcel has been delivered.
     }
     
     @IBAction func deliveryTimePickerChanged(_ sender: UIDatePicker) {
@@ -80,7 +80,7 @@ class PackageDetailTableViewController: UITableViewController {
         updateSaveButtonState()
     }
     
-    @IBAction func deleteButtonTapped(_ sender: UIButton) {
+    @IBAction func deleteButtonTapped(_ sender: UIButton) { // In here I'm getting the user to verify they do want to delete the package as it can't be undone
         let alertController = UIAlertController(title: "Are you sure?", message: "This can not be undone!", preferredStyle: .actionSheet)
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -93,16 +93,16 @@ class PackageDetailTableViewController: UITableViewController {
         self.present(alertController, animated: true, completion: nil)
     }
     
-    @IBAction func textFieldChanged(_ sender: UITextField) {
+    @IBAction func textFieldChanged(_ sender: UITextField) { // Here I'm telling the app to check if the save button should be enabled after changing a text field
         updateSaveButtonState()
     }
     
-    @IBAction func returnPressed(_ sender: UITextField) {
+    @IBAction func returnPressed(_ sender: UITextField) { // The text fields hide the keyboard when the user hits return
         sender.resignFirstResponder()
     }
     @IBAction func segmentedControlChanged(_ sender: UISegmentedControl) {
-        updateSaveButtonState()
-        tableView.beginUpdates()
+        updateSaveButtonState() //This is needed because this proc depends on knowing what the selected index is.
+        tableView.beginUpdates() // I've set the delivery date/time fields to hide depending on the status of this control
         tableView.endUpdates()
     }
     
@@ -115,33 +115,35 @@ class PackageDetailTableViewController: UITableViewController {
             
             statusDateLabel.textColor = isStatusDatePickerShown ? tableView.tintColor : .black
             
-            tableView.beginUpdates()
-            tableView.endUpdates()
+            //tableView.beginUpdates()
+            //tableView.endUpdates()
         case [0,3]:
             isStatusTimePickerShown = !isStatusTimePickerShown
             
             statusTimeLabel.textColor = isStatusTimePickerShown ? tableView.tintColor : .black
             
-            tableView.beginUpdates()
-            tableView.endUpdates()
+            //tableView.beginUpdates()
+            //tableView.endUpdates()
         case [2,2]:
             isDeliveryDatePickerShown = !isDeliveryDatePickerShown
             
             deliveryDateLabel.textColor = isDeliveryDatePickerShown ? tableView.tintColor : .black
             
-            tableView.beginUpdates()
-            tableView.endUpdates()
+            //tableView.beginUpdates()
+            //tableView.endUpdates()
         case [2, 4]:
             isDeliveryTimePickerShown = !isDeliveryTimePickerShown
             
             deliveryTimeLabel.textColor = isDeliveryTimePickerShown ? tableView.tintColor : .black
             
-            tableView.beginUpdates()
-            tableView.endUpdates()
+            //tableView.beginUpdates()
+            //tableView.endUpdates()
             
         default:
             break
         }
+        tableView.beginUpdates()
+        tableView.endUpdates()
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -156,7 +158,7 @@ class PackageDetailTableViewController: UITableViewController {
             return isStatusDatePickerShown ? pickerHeight : hiddenHeight
         case [0,4]:
             return isStatusTimePickerShown ? pickerHeight : hiddenHeight
-        case [2,2]:
+        case [2,2]:// This is where I hide/show the delivery date controls because if it hasn't been delivered there's no need to clutter up the screen with it.
             if (statusSegmentedControl.selectedSegmentIndex == 2 || statusSegmentedControl.selectedSegmentIndex == 3) {
                 return normalHeight
             } else {
@@ -177,7 +179,7 @@ class PackageDetailTableViewController: UITableViewController {
             return isDeliveryTimePickerShown ? pickerHeight : hiddenHeight
         case[3,0]:
             return notesHeight
-        case [4,0]:
+        case [4,0]://Hide or show the delete button
             return isDeleteButtonShown ? normalHeight : hiddenHeight
         default:
             return normalHeight
@@ -215,15 +217,15 @@ class PackageDetailTableViewController: UITableViewController {
  //MARK: - Private Helper Funcs
 private extension PackageDetailTableViewController {
     
-    func updateDateLabel(label: UILabel, date: Date) {
+    func updateDateLabel(label: UILabel, date: Date) {// Update a specific date label
         label.text = Package.dateFormatter.string(from: date)
     }
     
-    func updateTimeLabel(label: UILabel, time: Date) {
+    func updateTimeLabel(label: UILabel, time: Date) {// Update as specific time label
         label.text = Package.timeFormatter.string(from: time)
         }
     
-    func updateAllLabels() {
+    func updateAllLabels() {//Update the status labels and, if the data exists, update the delivery labels
         updateDateLabel(label: statusDateLabel, date: statusDatePicker.date)
         updateTimeLabel(label: statusTimeLabel, time: statusTimePicker.date)
         if let deliveryTime = deliveryTime, let deliveryDate = deliveryDate {
@@ -232,7 +234,7 @@ private extension PackageDetailTableViewController {
         }
     }
     
-    func loadPackage() {
+    func loadPackage() { // load the package if possible and enable the delete button
         if let package = package {
             navigationItem.title = "Edit Package"
             statusSegmentedControl.selectedSegmentIndex = package.status
@@ -259,21 +261,21 @@ private extension PackageDetailTableViewController {
         }
     }
     
-    func updateSaveButtonState() {
+    func updateSaveButtonState() {// I'm aware this is big and bulky but I couldn't think of a way to quickly reduce it down to a managable size so I'll walk you through my logic
         
-        switch statusSegmentedControl.selectedSegmentIndex {
-        case 0:
-            let nameCheck = recipientNameTextField.text ?? ""
-            let addressCheck = recipientAddressTextField.text ?? ""
+        switch statusSegmentedControl.selectedSegmentIndex {// Checking the state of the status segmented control
+        case 0:// If it's 0 then the parcel has just been entered so I only need to check two fields
+            let nameCheck = recipientNameTextField.text ?? ""//Recipient Name
+            let addressCheck = recipientAddressTextField.text ?? ""//and Recipient Address
             
-            recipientNameTextField.attributedPlaceholder = NSAttributedString(string: "Recipient Name (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
+            recipientNameTextField.attributedPlaceholder = NSAttributedString(string: "Recipient Name (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])//Make the placeholder text red to make it clear to the user
             recipientAddressTextField.attributedPlaceholder = NSAttributedString(string: "Recipient Address (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
             
-            courierTextField.placeholder = "Courier"
+            courierTextField.placeholder = "Courier" //Make sure these are set here so that if the user accidentaly moves to En-Route they don't have these fields stuck in red
             trackingNumberTextField.placeholder = "Tracking Number"
             
-            saveButton.isEnabled = !nameCheck.isEmpty && !addressCheck.isEmpty
-        case 1:
+            saveButton.isEnabled = !nameCheck.isEmpty && !addressCheck.isEmpty //Check if the two fields have text, if they do make the save button available.
+        case 1://If it's 1 then the parcel is En-Route. Now as well as the address and name the user also needs to put in the courier and the tracking number
             let nameCheck = recipientNameTextField.text ?? ""
             let addressCheck = recipientAddressTextField.text ?? ""
             let courierCheck = courierTextField.text ?? ""
@@ -281,18 +283,19 @@ private extension PackageDetailTableViewController {
             
             recipientNameTextField.attributedPlaceholder = NSAttributedString(string: "Recipient Name (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
             recipientAddressTextField.attributedPlaceholder = NSAttributedString(string: "Recipient Address (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
+            
             courierTextField.attributedPlaceholder = NSAttributedString(string: "Courier (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
             trackingNumberTextField.attributedPlaceholder = NSAttributedString(string: "Tracking Number (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
             
-             saveButton.isEnabled = !nameCheck.isEmpty && !addressCheck.isEmpty && !courierCheck.isEmpty && !trackingNoCheck.isEmpty
-        case 2, 3:
+             saveButton.isEnabled = !nameCheck.isEmpty && !addressCheck.isEmpty && !courierCheck.isEmpty && !trackingNoCheck.isEmpty//Check all four fields now
+        case 2, 3: // If it's 2 or 3 Then delivery has been made, 2 being Delivered and 3 being Returned. Either way we need more info
             let nameCheck = recipientNameTextField.text ?? ""
             let addressCheck = recipientAddressTextField.text ?? ""
             let courierCheck = courierTextField.text ?? ""
             let trackingNoCheck = trackingNumberTextField.text ?? ""
-            var dateCheck = ""
+            var dateCheck = ""//Setting these two up now outside the scope of the if statement. I probably should have used guard but this was added late.
             var timeCheck = ""
-            if let deliveryDate = deliveryDate {
+            if let deliveryDate = deliveryDate {//If possible set them to the string version of the variables I change in the deliveryDate/Time pickers
                 dateCheck = Package.dateFormatter.string(from: deliveryDate)
             }
             if let deliveryTime = deliveryTime {
@@ -304,7 +307,7 @@ private extension PackageDetailTableViewController {
             courierTextField.attributedPlaceholder = NSAttributedString(string: "Courier (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
             trackingNumberTextField.attributedPlaceholder = NSAttributedString(string: "Tracking Number (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
             
-            if dateCheck.isEmpty {
+            if dateCheck.isEmpty {//If a date hasn't been set then tell the user they have to set one before saving, making the label text red and add (Required)
                 deliveryDateLabel.text = "Not Set (Required)"
                 deliveryDateLabel.textColor = .red
             }
