@@ -17,8 +17,8 @@ struct Package: Codable {
     var trackingNumber: String?
     var recipientName: String
     var recipientAddress: String
-    var recipientEmail: String
-    var recipientPhoneNumber: String
+    var recipientEmail: String?
+    var recipientPhoneNumber: String?
     var deliveryDate: Date?
     var deliveryTime: Date?
     var notes: String?

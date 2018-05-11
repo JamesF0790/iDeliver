@@ -19,6 +19,10 @@ class PackageDetailTableViewController: UITableViewController {
     var isDeliveryTimePickerShown = false
     
     var isDeleteButtonShown = false
+
+    var deliveryDate: Date?
+    var deliveryTime: Date?
+    
     // MARK: - Outlets
 
     @IBOutlet weak var statusSegmentedControl: UISegmentedControl!
@@ -50,6 +54,7 @@ class PackageDetailTableViewController: UITableViewController {
         super.viewDidLoad()
         updateAllLabels()
         loadPackage()
+        updateSaveButtonState()
         
     }
 
@@ -64,10 +69,12 @@ class PackageDetailTableViewController: UITableViewController {
     }
     
     @IBAction func deliveryDatePickerChanged(_ sender: UIDatePicker) {
+        deliveryDate = sender.date
         updateDateLabel(label: deliveryDateLabel, date: sender.date)
     }
     
     @IBAction func deliveryTimePickerChanged(_ sender: UIDatePicker) {
+        deliveryTime = sender.date
         updateTimeLabel(label: deliveryTimeLabel, time: sender.date)
     }
     
@@ -82,6 +89,17 @@ class PackageDetailTableViewController: UITableViewController {
         alertController.addAction(deleteAction)
         
         self.present(alertController, animated: true, completion: nil)
+    }
+    
+    @IBAction func textFieldChanged(_ sender: UITextField) {
+        updateSaveButtonState()
+    }
+    
+    @IBAction func returnPressed(_ sender: UITextField) {
+        sender.resignFirstResponder()
+    }
+    @IBAction func segmentedControlChanged(_ sender: UISegmentedControl) {
+        updateSaveButtonState()
     }
     
     // MARK: - Table view data source
@@ -166,8 +184,8 @@ class PackageDetailTableViewController: UITableViewController {
         let recipientPhone = recipientPhoneTextField.text!
         let recipientEmail = recipientEmailTextField.text!
         
-        let deliveryDate = deliveryDatePicker.date
-        let deliveryTime = deliveryTimePicker.date
+        let deliveryDate = self.deliveryDate
+        let deliveryTime = self.deliveryTime
         
         let notes = notesTextView.text
         
@@ -181,16 +199,20 @@ private extension PackageDetailTableViewController {
     func updateDateLabel(label: UILabel, date: Date) {
         label.text = Package.dateFormatter.string(from: date)
     }
+    
     func updateTimeLabel(label: UILabel, time: Date) {
         label.text = Package.timeFormatter.string(from: time)
         }
+    
     func updateAllLabels() {
         updateDateLabel(label: statusDateLabel, date: statusDatePicker.date)
         updateTimeLabel(label: statusTimeLabel, time: statusTimePicker.date)
-        updateDateLabel(label: deliveryDateLabel, date: deliveryDatePicker.date)
-        updateTimeLabel(label: deliveryTimeLabel, time: deliveryTimePicker.date)
-        
+        if let deliveryTime = deliveryTime, let deliveryDate = deliveryDate {
+            updateDateLabel(label: deliveryDateLabel, date: deliveryDate)
+            updateTimeLabel(label: deliveryTimeLabel, time: deliveryTime)
+        }
     }
+    
     func loadPackage() {
         if let package = package {
             navigationItem.title = "Edit Package"
@@ -203,14 +225,80 @@ private extension PackageDetailTableViewController {
             recipientAddressTextField.text = package.recipientAddress
             recipientEmailTextField.text = package.recipientEmail
             recipientPhoneTextField.text = package.recipientPhoneNumber
-            deliveryDatePicker.date = package.deliveryDate ?? Date()
-            deliveryTimePicker.date = package.deliveryTime ?? Date()
+            if let deliveryDate = package.deliveryDate, let deliveryTime = package.deliveryTime {
+                deliveryDatePicker.date = deliveryDate
+                self.deliveryDate = deliveryDate
+                deliveryTimePicker.date = deliveryTime
+                self.deliveryTime = deliveryTime
+            }
             notesTextView.text = package.notes ?? ""
             
             isDeleteButtonShown = true
             deleteButton.backgroundColor = .red
         } else {
             navigationItem.title = "Add Package"
+        }
+    }
+    
+    func updateSaveButtonState() {
+        
+        switch statusSegmentedControl.selectedSegmentIndex {
+        case 0:
+            let nameCheck = recipientNameTextField.text ?? ""
+            let addressCheck = recipientAddressTextField.text ?? ""
+            
+            recipientNameTextField.attributedPlaceholder = NSAttributedString(string: "Recipient Name (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
+            recipientAddressTextField.attributedPlaceholder = NSAttributedString(string: "Recipient Address (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
+            
+            courierTextField.placeholder = "Courier"
+            trackingNumberTextField.placeholder = "Tracking Number"
+            
+            saveButton.isEnabled = !nameCheck.isEmpty && !addressCheck.isEmpty
+        case 1:
+            let nameCheck = recipientNameTextField.text ?? ""
+            let addressCheck = recipientAddressTextField.text ?? ""
+            let courierCheck = courierTextField.text ?? ""
+            let trackingNoCheck = trackingNumberTextField.text ?? ""
+            
+            recipientNameTextField.attributedPlaceholder = NSAttributedString(string: "Recipient Name (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
+            recipientAddressTextField.attributedPlaceholder = NSAttributedString(string: "Recipient Address (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
+            courierTextField.attributedPlaceholder = NSAttributedString(string: "Courier (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
+            trackingNumberTextField.attributedPlaceholder = NSAttributedString(string: "Tracking Number (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
+            
+             saveButton.isEnabled = !nameCheck.isEmpty && !addressCheck.isEmpty && !courierCheck.isEmpty && !trackingNoCheck.isEmpty
+        case 2:
+            let nameCheck = recipientNameTextField.text ?? ""
+            let addressCheck = recipientAddressTextField.text ?? ""
+            let courierCheck = courierTextField.text ?? ""
+            let trackingNoCheck = trackingNumberTextField.text ?? ""
+            var dateCheck = ""
+            var timeCheck = ""
+            if let deliveryDate = deliveryDate {
+                dateCheck = Package.dateFormatter.string(from: deliveryDate)
+            }
+            if let deliveryTime = deliveryTime {
+                timeCheck = Package.timeFormatter.string(from: deliveryTime)
+            }
+            
+            recipientNameTextField.attributedPlaceholder = NSAttributedString(string: "Recipient Name (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
+            recipientAddressTextField.attributedPlaceholder = NSAttributedString(string: "Recipient Address (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
+            courierTextField.attributedPlaceholder = NSAttributedString(string: "Courier (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
+            trackingNumberTextField.attributedPlaceholder = NSAttributedString(string: "Tracking Number (Required)", attributes: [NSAttributedStringKey.foregroundColor: UIColor.red])
+            
+            if dateCheck.isEmpty {
+                deliveryDateLabel.text = "Not Set (Required)"
+                deliveryDateLabel.textColor = .red
+            }
+            
+            if timeCheck.isEmpty {
+                deliveryTimeLabel.text = "Not Set (Required)"
+                deliveryTimeLabel.textColor = .red
+            }
+            
+            saveButton.isEnabled = !nameCheck.isEmpty && !addressCheck.isEmpty && !courierCheck.isEmpty && !trackingNoCheck.isEmpty && !dateCheck.isEmpty && !timeCheck.isEmpty
+            
+        default:
+            break
         }
     }
 }

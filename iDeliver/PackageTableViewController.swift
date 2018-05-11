@@ -6,6 +6,7 @@ class PackageTableViewController: UITableViewController {
     var enteredPackages: [Package] = []
     var enroutePackages: [Package] = []
     var deliveredPackages: [Package] = []
+    var returnedPackages: [Package] = []
     var packages: [[Package]] = []
     
     override func viewDidLoad() {
@@ -14,11 +15,12 @@ class PackageTableViewController: UITableViewController {
         if let savedPackages = Package.loadPackages() {
             packages = savedPackages
         } else {
+            loadSamplePackages()
             packages.append(enteredPackages)
             packages.append(enroutePackages)
             packages.append(deliveredPackages)
+            packages.append(returnedPackages)
         }
-        //loadSamplePackages()
     }
 
     // MARK : - Unwind
@@ -32,29 +34,27 @@ class PackageTableViewController: UITableViewController {
                     let oldStatus = packages[selectedIndexPath.section][selectedIndexPath.row].status
                     if oldStatus == newStatus {
                         packages[selectedIndexPath.section][selectedIndexPath.row] = package
-                        tableView.reloadData()
+
                     } else {
                         let newIndexPath = IndexPath(row: packages[package.status].count, section: package.status)
                         packages[selectedIndexPath.section].remove(at: selectedIndexPath.row)
                         packages[package.status].append(package)
                         tableView.moveRow(at: selectedIndexPath, to: newIndexPath)
-                        tableView.reloadData()
                     }
 
                 } else {
                     let newIndexPath = IndexPath(row: packages[package.status].count, section: package.status)
                     packages[package.status].append(package)
                     tableView.insertRows(at: [newIndexPath], with: .automatic)
-                    tableView.reloadData()
                 }
             }
         } else if segue.identifier == "deleteUnwind" {
             if let selectedIndexPath = tableView.indexPathForSelectedRow {
                 packages[selectedIndexPath.section].remove(at: selectedIndexPath.row)
                 tableView.deleteRows(at: [selectedIndexPath], with: .automatic)
-                tableView.reloadData()
             }
         }
+        tableView.reloadData()
         Package.savePackages(packages)
     }
 
@@ -76,10 +76,18 @@ class PackageTableViewController: UITableViewController {
         switch (section) {
         case 0:
             headerCell.headerLabel.text = "Entered"
+            headerCell.headerLabel.textColor = .black
         case 1:
             headerCell.headerLabel.text = "En-Route"
+            headerCell.headerLabel.textColor = .black
         case 2:
             headerCell.headerLabel.text = "Delivered"
+            headerCell.backgroundColor = .green
+            headerCell.headerLabel.textColor = .black
+        case 3:
+            headerCell.headerLabel.text = "Returned"
+            headerCell.backgroundColor = .red
+            headerCell.headerLabel.textColor = .white
         default:
             headerCell.headerLabel.text = "Other"
         }
@@ -91,45 +99,20 @@ class PackageTableViewController: UITableViewController {
 
         cell.nameLabel?.text = packages[indexPath.section][indexPath.row].recipientName
         cell.addressLabel?.text = packages[indexPath.section][indexPath.row].recipientAddress
-        print(indexPath)
+        
+        switch (indexPath.section) {
+
+        case 3:
+            cell.nameLabel.textColor = .red
+            cell.addressLabel.textColor = .red
+            
+        default:
+            cell.nameLabel.textColor = .black
+            cell.addressLabel.textColor = .black
+        }
+        
         return cell
     }
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
     
     // MARK: - Navigation
 
@@ -142,15 +125,14 @@ class PackageTableViewController: UITableViewController {
             packageDetailTableViewController.package = package
         }
     }
- 
-
 }
-/* private extension PackageTableViewController {
+private extension PackageTableViewController {
     func loadSamplePackages() {
         
         enteredPackages.append(Package(status: 0, statusDate: Date(), statusTime: Date(), courier: "Bob", trackingNumber: "12312", recipientName: "Joe Blogs", recipientAddress: "123 Fake Street New York, 12412, NY", recipientEmail: "JoeBlogs@blogsy.com", recipientPhoneNumber: "555-3931", deliveryDate: Date(), deliveryTime: Date(), notes: "Blogsy"))
         enroutePackages.append(Package(status: 1, statusDate: Date(), statusTime: Date(), courier: "Bob", trackingNumber: "12345", recipientName: "Jane Doe", recipientAddress: "1234 Fake Lane, Los Angeles, 90210, LA", recipientEmail: "JLane@loot.com", recipientPhoneNumber: "555-3123", deliveryDate: Date(), deliveryTime: Date(), notes: "Laney"))
         deliveredPackages.append(Package(status: 2, statusDate: Date(), statusTime: Date(), courier: "Bob", trackingNumber: "123123", recipientName: "John Smith", recipientAddress: "432 False Court, Texarkana, 12131, TX", recipientEmail: "JSmith@smith.com", recipientPhoneNumber: "555-3121", deliveryDate: Date(), deliveryTime: Date(), notes: "Generic"))
+        returnedPackages.append(Package(status: 3, statusDate: Date(), statusTime: Date(), courier: nil, trackingNumber: nil, recipientName: "James Frost", recipientAddress: "403 Tarakan Ave", recipientEmail: nil, recipientPhoneNumber: nil, deliveryDate: nil, deliveryTime: nil, notes: nil))
     }
+    
 }
-*/
